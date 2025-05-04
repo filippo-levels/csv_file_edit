@@ -14,6 +14,14 @@ interface ParsedData {
   rows: Record<string, string>[];
 }
 
+const standardFilterColumns = [
+  'Date', 'Time', 'BATCH_NAME', 'H_DRY_1', 'M_DRY_1', 'H_DRY_2', 'M_DRY_2',
+  'H_DRY_3', 'M_DRY_3', 'H_COOLING_4', 'M_COOLING_4', 'T_CLEAN_ON_1',
+  'T_PAUSE_CLEAN_1', 'T_CLEAN_ON_2', 'T_PAUSE_CLEAN_2', 'T_CLEAN_ON_3',
+  'T_PAUSE_CLEAN_3', 'T_CLEAN_ON_4', 'T_PAUSE_CLEAN_4', 'TEMP_AIR_IN',
+  'TEMP_PRODUCT_1', 'TEMP_PRODUCT_2', 'TEMP_PRODUCT_3'
+];
+
 export default function Home() {
   const [parsedData, setParsedData] = useState<ParsedData | null>(null);
   const [selectedColumns, setSelectedColumns] = useState<Record<string, boolean>>({});
@@ -21,6 +29,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
+  const [activeFilterName, setActiveFilterName] = useState<string | null>(null);
 
   const handleFileDrop = useCallback((acceptedFiles: File[]) => {
     setError(null);
@@ -28,6 +37,8 @@ export default function Home() {
     setSelectedColumns({});
     setColumnOrder([]);
     setIsLoading(true);
+    setFileName(null);
+    setActiveFilterName(null);
 
     const file = acceptedFiles[0];
     if (!file) {
@@ -137,15 +148,40 @@ export default function Home() {
     reader.readAsText(file);
   }, []);
 
+  const applyFilter = useCallback((filterName: string | null) => {
+    if (!parsedData) return;
+
+    setActiveFilterName(filterName);
+
+    if (filterName === 'standard') {
+        const availablePresetColumns = standardFilterColumns.filter(col => parsedData.headers.includes(col));
+        const newSelectedColumns: Record<string, boolean> = {};
+        parsedData.headers.forEach(header => {
+            newSelectedColumns[header] = availablePresetColumns.includes(header);
+        });
+        setSelectedColumns(newSelectedColumns);
+        setColumnOrder(availablePresetColumns);
+    } else { // 'all' or null
+        const allSelected: Record<string, boolean> = {};
+        parsedData.headers.forEach(header => {
+            allSelected[header] = true;
+        });
+        setSelectedColumns(allSelected);
+        setColumnOrder(parsedData.headers);
+    }
+  }, [parsedData]);
+
   const handleColumnToggle = useCallback((columnName: string) => {
     setSelectedColumns(prev => ({
       ...prev,
       [columnName]: !prev[columnName]
     }));
+    setActiveFilterName(null);
   }, []);
 
   const handleColumnOrderChange = useCallback((newOrder: string[]) => {
     setColumnOrder(newOrder);
+    setActiveFilterName(null);
   }, []);
 
   // Memoize processed data to avoid recalculating on every render
@@ -257,6 +293,25 @@ export default function Home() {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Filter Selection Dropdown */}
+          <div className="w-full max-w-6xl mb-4">
+            <label htmlFor="filter-select" className="block text-sm font-medium text-gray-700 mb-1">
+              Applica Filtro Colonne:
+            </label>
+            <select
+              id="filter-select"
+              value={activeFilterName ?? 'all'}
+              onChange={(e) => applyFilter(e.target.value === 'all' ? null : e.target.value)}
+              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm"
+            >
+              <option value="all">Mostra Tutte le Colonne</option>
+              {/* Check if standard filter is applicable */}
+              {standardFilterColumns.some(col => parsedData.headers.includes(col)) && (
+                  <option value="standard">Filtro Standard</option>
+              )}
+            </select>
           </div>
 
           <div className="w-full max-w-6xl flex flex-col lg:flex-row gap-6">
