@@ -1,0 +1,34 @@
+{
+  "filters": [
+    {
+      "id": "exclude-qf",
+      "name": "Escludi colonne QF",
+      "description": "Escludi tutte le colonne che iniziano con QF",
+      "filter": {
+        "type": "prefix",
+        "exclude": ["QF"],
+        "include": []
+      }
+    },
+    {
+      "id": "select-all",
+      "name": "Seleziona tutte",
+      "description": "Seleziona tutte le colonne disponibili",
+      "filter": {
+        "type": "all",
+        "include": [],
+        "exclude": []
+      }
+    },
+    {
+      "id": "deselect-all",
+      "name": "Deseleziona tutte",
+      "description": "Deseleziona tutte le colonne",
+      "filter": {
+        "type": "none",
+        "include": [],
+        "exclude": []
+      }
+    }
+  ]
+} 
