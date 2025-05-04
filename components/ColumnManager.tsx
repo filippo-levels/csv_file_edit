@@ -10,7 +10,7 @@ interface ColumnFilter {
   name: string;
   description: string;
   filter: {
-    type: 'prefix' | 'exactMatch' | 'all' | 'none';
+    type: 'prefix' | 'exactMatch' | 'all' | 'none' | 'specific';
     exclude: string[];
     include: string[];
   };
@@ -117,6 +117,10 @@ export const ColumnManager: React.FC<ColumnManagerProps> = ({
           }
         }
       }
+      else if (selectedFilter.filter.type === 'specific') {
+        // For specific type, only include columns that exactly match the include list
+        newSelectedColumns[column] = selectedFilter.filter.include.includes(column);
+      }
     });
 
     // Apply the new selection state by toggling only what needs to be changed
@@ -125,6 +129,19 @@ export const ColumnManager: React.FC<ColumnManagerProps> = ({
         onColumnToggle(col);
       }
     });
+    
+    // For specific filter type, also update column order to match include list order
+    if (selectedFilter.filter.type === 'specific' && selectedFilter.filter.include.length > 0) {
+      // Create new order based on the include list, but only using columns that exist
+      const availableColumns = selectedFilter.filter.include.filter(col => columnOrder.includes(col));
+      
+      // Only update if there are matching columns
+      if (availableColumns.length > 0) {
+        // Add any remaining columns that weren't in the specific list
+        const remainingColumns = columnOrder.filter(col => !availableColumns.includes(col));
+        onColumnOrderChange([...availableColumns, ...remainingColumns]);
+      }
+    }
   };
 
   const filteredColumns = columnOrder.filter(header => 

@@ -1,6 +1,16 @@
 {
   "filters": [
     {
+      "id": "standard",
+      "name": "Filtro Standard",
+      "description": "Applica il filtro standard alle colonne",
+      "filter": {
+        "type": "specific",
+        "include": ["Date", "Time", "BATCH_NAME", "H_DRY_1", "M_DRY_1", "H_DRY_2", "M_DRY_2", "H_DRY_3", "M_DRY_3", "H_COOLING_4", "M_COOLING_4", "T_CLEAN_ON_1", "T_PAUSE_CLEAN_1", "T_CLEAN_ON_2", "T_PAUSE_CLEAN_2", "T_CLEAN_ON_3", "T_PAUSE_CLEAN_3", "T_CLEAN_ON_4", "T_PAUSE_CLEAN_4", "TEMP_AIR_IN", "TEMP_PRODUCT_1", "TEMP_PRODUCT_2", "TEMP_PRODUCT_3"],
+        "exclude": []
+      }
+    },
+    {
       "id": "exclude-qf",
       "name": "Escludi colonne QF",
       "description": "Escludi tutte le colonne che iniziano con QF",

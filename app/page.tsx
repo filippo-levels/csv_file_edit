@@ -14,6 +14,8 @@ interface ParsedData {
   rows: Record<string, string>[];
 }
 
+// These columns are now moved to column-filters.json
+// Keeping this constant here for reference but it's not used directly
 const standardFilterColumns = [
   'Date', 'Time', 'BATCH_NAME', 'H_DRY_1', 'M_DRY_1', 'H_DRY_2', 'M_DRY_2',
   'H_DRY_3', 'M_DRY_3', 'H_COOLING_4', 'M_COOLING_4', 'T_CLEAN_ON_1',
@@ -148,29 +150,8 @@ export default function Home() {
     reader.readAsText(file);
   }, []);
 
-  const applyFilter = useCallback((filterName: string | null) => {
-    if (!parsedData) return;
-
-    setActiveFilterName(filterName);
-
-    if (filterName === 'standard') {
-        const availablePresetColumns = standardFilterColumns.filter(col => parsedData.headers.includes(col));
-        const newSelectedColumns: Record<string, boolean> = {};
-        parsedData.headers.forEach(header => {
-            newSelectedColumns[header] = availablePresetColumns.includes(header);
-        });
-        setSelectedColumns(newSelectedColumns);
-        setColumnOrder(availablePresetColumns);
-    } else { // 'all' or null
-        const allSelected: Record<string, boolean> = {};
-        parsedData.headers.forEach(header => {
-            allSelected[header] = true;
-        });
-        setSelectedColumns(allSelected);
-        setColumnOrder(parsedData.headers);
-    }
-  }, [parsedData]);
-
+  // This function is now used for compatibility with the ColumnManager component
+  // It's called when a column is toggled from the ColumnManager
   const handleColumnToggle = useCallback((columnName: string) => {
     setSelectedColumns(prev => ({
       ...prev,
@@ -295,24 +276,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Filter Selection Dropdown */}
-          <div className="w-full max-w-6xl mb-4">
-            <label htmlFor="filter-select" className="block text-sm font-medium text-gray-700 mb-1">
-              Applica Filtro Colonne:
-            </label>
-            <select
-              id="filter-select"
-              value={activeFilterName ?? 'all'}
-              onChange={(e) => applyFilter(e.target.value === 'all' ? null : e.target.value)}
-              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm"
-            >
-              <option value="all">Mostra Tutte le Colonne</option>
-              {/* Check if standard filter is applicable */}
-              {standardFilterColumns.some(col => parsedData.headers.includes(col)) && (
-                  <option value="standard">Filtro Standard</option>
-              )}
-            </select>
-          </div>
+          {/* Removed the Filter Selection Dropdown */}
 
           <div className="w-full max-w-6xl flex flex-col lg:flex-row gap-6">
             <ColumnManager
